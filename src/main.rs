@@ -1,5 +1,6 @@
-mod window;
 mod event_loop;
+mod vt100;
+mod window;
 
 use std::io::Error;
 use std::sync::{

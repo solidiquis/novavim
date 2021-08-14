@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 pub struct Window {
     height: usize,
-    width: usize
+    width: usize,
 }
 
 impl Window {
