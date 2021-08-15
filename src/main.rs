@@ -1,5 +1,6 @@
 mod event_loop;
 use event_loop::EventLoop;
+mod key;
 mod mode;
 mod vt100;
 mod window;
