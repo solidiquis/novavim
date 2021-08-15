@@ -1,7 +1,8 @@
+#![allow(dead_code)]
+
 pub mod constants;
 
 use std::fmt::Display;
-use std::io::{self, Write};
 
 use constants::*;
 
@@ -142,7 +143,6 @@ fn sgr(flags: i64) {
         flush_print!("{}", fansi(47, "m"))
     }
 }
-
 
 fn fansi<T, U>(x: T, y: U) -> String
     where T: Display,

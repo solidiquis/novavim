@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 pub const BOLD: i64 = 1;
 pub const UNDERLINE: i64 = BOLD << 1;
 pub const STRIKETHROUGH: i64 = BOLD << 2;

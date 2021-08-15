@@ -1,6 +1,9 @@
 mod event_loop;
+use event_loop::EventLoop;
+mod mode;
 mod vt100;
 mod window;
+use window::Window;
 
 use std::io::Error;
 use std::sync::{
@@ -14,9 +17,6 @@ use signal_hook::{
         exfiltrator::origin::WithOrigin
     }
 };
-
-use window::Window;
-use event_loop::EventLoop;
 
 fn main() -> Result<(), Error> {
     //let os_signals = vec![SIGWINCH, SIGINT];
