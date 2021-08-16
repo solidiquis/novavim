@@ -1,7 +1,10 @@
-use crate::mode::{
-    ctrl::Ctrl,
-    Mode,
-    Response
+use crate::{
+    mode::{
+        ctrl::Ctrl,
+        Mode,
+        Response
+    },
+    vt100
 };
 use std::default::Default;
 

@@ -9,7 +9,7 @@ impl Window {
         vt100::cur_home();
         vt100::cur_down(1);
 
-        for _ in (0..self.height-1) {
+        for _ in (0..self.height-2) {
             vt100::sgrecho("~\n", 0)
         }
 

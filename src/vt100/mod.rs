@@ -1,6 +1,9 @@
 #![allow(dead_code)]
 
 pub mod constants;
+mod cursor_position;
+use cursor_position::query_cursor_position;
+mod error;
 
 use std::fmt::Display;
 
@@ -26,6 +29,14 @@ pub fn sgrecho(txt: &str, flags: i64) {
     sgr(flags);
     echo(txt);
     sgr_normal()
+}
+
+pub fn cur_pos() -> (usize, usize) {
+    let pos = query_cursor_position();
+    match pos {
+        Ok(p) => p,
+        Err(e) => panic!("{}", e)
+    }
 }
 
 pub fn cur_up(n: usize) {
