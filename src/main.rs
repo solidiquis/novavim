@@ -25,8 +25,16 @@ fn main() -> Result<(), Error> {
     let os_signals = vec![SIGWINCH];
     let mut signal_info = SignalsInfo::<WithOrigin>::new(&os_signals)?;
 
-    unbuffer_stdin();
-    unecho_stdin();
+    // Noncanonical mode, turn off echo.
+    Command::new("stty")
+        .arg("-f")
+        .arg("/dev/tty")
+        .arg("cbreak")
+        .arg("min")
+        .arg("1")
+        .arg("-echo")
+        .output()
+        .expect("Failed to unbuffer stdin.");
 
     let win = Arc::new(Mutex::new(Window::init()));
     let _el = exec_loop(&win);
@@ -48,27 +56,5 @@ fn exec_loop(window: &Arc<Mutex<Window>>) -> JoinHandle<()> {
     thread::spawn(move || {
         EventLoop::run(&win)
     })        
-}
-
-fn unbuffer_stdin() {
-    Command::new("stty")
-        .arg("-f")
-        .arg("/dev/tty")
-        .arg("cbreak")
-        .arg("min")
-        .arg("1")
-        .output()
-        .expect("Failed to unbuffer stdin.");
-    ()
-}
-
-fn unecho_stdin() {
-    Command::new("stty")
-        .arg("-f")
-        .arg("/dev/tty")
-        .arg("-echo")
-        .output()
-        .expect("Failed to unecho stdin.");
-    ()
 }
 

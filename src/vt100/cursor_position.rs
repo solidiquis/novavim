@@ -6,8 +6,7 @@ use std::{
     str
 };
 
-// This will not work as intended unless stdin has been
-// unechoed and unbuffered.
+// Will not work properly unless noncanonical mode and echo is disabled.
 pub fn query_cursor_position() -> Result<(usize, usize), Box<dyn Error>> {
     // query the cursor position.
     let mut stdout = io::stdout();
