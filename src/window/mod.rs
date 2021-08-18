@@ -17,6 +17,8 @@ mod winsize;
 
 use std::sync::{Arc, Mutex};
 
+// Maybe should have this guy own all the controllers
+// as to allow each controller to have state that persists.
 pub struct Window {
     mode: Mode,
     height: usize,
@@ -57,6 +59,7 @@ impl Window {
 
         let response = match key {
             Key::Backspace => ctrl.handle_backspace(),
+            Key::Colon => ctrl.handle_colon(),
             Key::Return => ctrl.handle_return(),
             Key::ESC => ctrl.handle_esc(),
             Key::Up => ctrl.handle_up(),
@@ -77,6 +80,14 @@ impl Window {
 
     fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
-        self.render_mode()
+        self.render_mode();
+
+        match self.mode {
+            Mode::Normal => NormalCtrl::init_screen(self.width, self.height),
+            Mode::Insert => InsertCtrl::init_screen(self.width, self.height),
+            Mode::Visual => VisualCtrl::init_screen(self.width, self.height),
+            Mode::CommandLine => CommandLineCtrl::init_screen(self.width, self.height),
+            Mode::Select => SelectCtrl::init_screen(self.width, self.height)
+        };
     }
 }

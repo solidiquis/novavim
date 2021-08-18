@@ -9,4 +9,5 @@ pub trait Ctrl {
     fn handle_right(&self) -> Response;
     fn handle_left(&self) -> Response;
     fn handle_ascii(&self, ch: &str) -> Response;
+    fn handle_colon(&self) -> Response;
 }

@@ -19,4 +19,9 @@ impl Ctrl for SelectCtrl {
     fn handle_right(&self) -> Response { Response::Ok }
     fn handle_left(&self) -> Response { Response::Ok }
     fn handle_ascii(&self, ch: &str) -> Response { Response::Ok }
+    fn handle_colon(&self) -> Response { Response::Ok }
+}
+
+impl SelectCtrl {
+    pub fn init_screen(width: usize, height: usize) {}
 }

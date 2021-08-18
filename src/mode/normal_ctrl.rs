@@ -26,4 +26,12 @@ impl Ctrl for NormalCtrl {
     fn handle_down(&self) -> Response { Response::Ok }
     fn handle_right(&self) -> Response { Response::Ok }
     fn handle_left(&self) -> Response { Response::Ok }
+
+    fn handle_colon(&self) -> Response {
+        Response::ChangeMode(Mode::CommandLine)
+    }
+}
+
+impl NormalCtrl {
+    pub fn init_screen(width: usize, height: usize) {}
 }

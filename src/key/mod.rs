@@ -8,6 +8,7 @@ pub enum Key<'a> {
     Down,
     Right,
     Left,
+    Colon,
     ASCII(&'a str),
     None
 }
@@ -16,6 +17,7 @@ impl<'a> Key<'a> {
     pub fn determine_key(bytes: &'a [u8; 3]) -> Self {
         match bytes[0] {
             127 => Self::Backspace,
+            58  => Self::Colon,
             27  => Self::determine_special_key(bytes),
             10  => Self::Return,
             _   => Self::ASCII(Self::to_chstr(bytes))
