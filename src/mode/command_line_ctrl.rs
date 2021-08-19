@@ -1,40 +1,38 @@
 use crate::{
+    commands,
+    errors::Error,
+    key::Key,
     mode::{
         ctrl::Ctrl,
         Mode,
         Response
     },
-    vt100,
+    vt100
 };
 use std::default::Default;
 
-pub struct CommandLineCtrl;
+pub struct CommandLineCtrl{
+    cmd_buffer: String
+}
 
 impl Default for CommandLineCtrl {
-    fn default() -> Self { CommandLineCtrl{} }
+    fn default() -> Self {
+        let cmd_buffer = "".to_string();
+
+        CommandLineCtrl{ cmd_buffer }
+    }
 }
 
 impl Ctrl for CommandLineCtrl {
-    fn handle_backspace(&self) -> Response { Response::Ok }
-    fn handle_return(&self) -> Response { Response::Ok }
-    fn handle_up(&self) -> Response { Response::Ok }
-    fn handle_down(&self) -> Response { Response::Ok }
-    fn handle_right(&self) -> Response { Response::Ok }
-    fn handle_left(&self) -> Response { Response::Ok }
+    fn handle_key(&mut self, key: Key) -> Response {
+        let response = match key {
+            Key::Return => self.handle_return(),
+            Key::ESC => self.handle_esc(),
+            Key::ASCII(ch) => self.handle_ascii(ch),
+            _ => Response::Ok
+        };
 
-    fn handle_esc(&self) -> Response {
-        vt100::del_ln(); 
-        vt100::cur_restore_pos();
-        Response::ChangeMode(Mode::Normal)
-    }
-
-    fn handle_ascii(&self, ch: &str) -> Response {
-        vt100::echo(ch);
-        Response::Ok
-    }
-
-    fn handle_colon(&self) -> Response {
-        self.handle_ascii(":")
+        response
     }
 }
 
@@ -46,4 +44,31 @@ impl CommandLineCtrl {
         vt100::cur_right(1);
     }
 
+    // TODO: return result enum
+    pub fn exec_cmd(cmd: &str) {
+        match cmd {
+            "q" => commands::q(),
+            _ => ()
+        }
+    }
+
+    fn handle_esc(&mut self) -> Response {
+        self.cmd_buffer.clear();
+        vt100::del_ln(); 
+        vt100::cur_restore_pos();
+        Response::ChangeMode(Mode::Normal)
+    }
+
+    fn handle_ascii(&mut self, ch: &str) -> Response {
+        self.cmd_buffer.push_str(ch);
+        vt100::echo(ch);
+        Response::Ok
+    }
+
+    fn handle_return(&mut self) -> Response {
+        // TODO: Error handling
+        Self::exec_cmd(&self.cmd_buffer);
+        self.cmd_buffer.clear();
+        Response::Ok
+    }
 }

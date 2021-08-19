@@ -1,10 +1,10 @@
 use crate::{
+    key::Key,
     mode::{
         ctrl::Ctrl,
         Mode,
         Response
-    },
-    vt100
+    }
 };
 use std::default::Default;
 
@@ -15,20 +15,19 @@ impl Default for InsertCtrl {
 }
 
 impl Ctrl for InsertCtrl {
-    fn handle_esc(&self) -> Response {
-        Response::ChangeMode(Mode::Normal)    
-    }
+    fn handle_key(&mut self, key: Key) -> Response {
+        let response = match key {
+            Key::ESC => self.handle_esc(),
+            _ => Response::Ok
+        };
 
-    fn handle_backspace(&self) -> Response { Response::Ok }
-    fn handle_return(&self) -> Response { Response::Ok }
-    fn handle_up(&self) -> Response { Response::Ok }
-    fn handle_down(&self) -> Response { Response::Ok }
-    fn handle_right(&self) -> Response { Response::Ok }
-    fn handle_left(&self) -> Response { Response::Ok }
-    fn handle_ascii(&self, ch: &str) -> Response { Response::Ok }
-    fn handle_colon(&self) -> Response { Response::Ok }
+        response
+    }
 }
 
 impl InsertCtrl {
-    pub fn init_screen(width: usize, height: usize) {}
+    fn handle_esc(&mut self) -> Response {
+        Response::ChangeMode(Mode::Normal)    
+    }
+
 }

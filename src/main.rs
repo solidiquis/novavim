@@ -1,3 +1,5 @@
+mod commands;
+mod errors;
 mod event_loop;
 use event_loop::EventLoop;
 mod key;

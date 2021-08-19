@@ -24,7 +24,12 @@ pub struct Window {
     height: usize,
     width: usize,
     curcol: usize,
-    currow: usize
+    currow: usize,
+    normal: NormalCtrl,
+    visual: VisualCtrl,
+    select: SelectCtrl,
+    insert: InsertCtrl,
+    command_line: CommandLineCtrl
 }
 
 impl Window {
@@ -35,7 +40,18 @@ impl Window {
         let curcol = 1;
         let currow = 1;
         let mode = Mode::Normal;
-        let win = Window { mode, height, width, curcol, currow };
+
+        let normal = NormalCtrl::default();
+        let visual = VisualCtrl::default();
+        let select = SelectCtrl::default();
+        let insert = InsertCtrl::default();
+        let command_line = CommandLineCtrl::default();
+
+        let win = Window { 
+            mode, height, width, curcol, currow,
+            normal, visual, select, insert, command_line
+        };
+
         win.init_screen();
 
         win
@@ -49,25 +65,13 @@ impl Window {
     }
 
     pub fn handle_key(&mut self, key: Key) {
-        let ctrl: Box<dyn Ctrl> = match self.mode {
-            Mode::Normal => Box::new(NormalCtrl::default()),
-            Mode::Insert => Box::new(InsertCtrl::default()),
-            Mode::Visual => Box::new(VisualCtrl::default()),
-            Mode::CommandLine => Box::new(CommandLineCtrl::default()),
-            Mode::Select => Box::new(SelectCtrl::default())
-        };
-
-        let response = match key {
-            Key::Backspace => ctrl.handle_backspace(),
-            Key::Colon => ctrl.handle_colon(),
-            Key::Return => ctrl.handle_return(),
-            Key::ESC => ctrl.handle_esc(),
-            Key::Up => ctrl.handle_up(),
-            Key::Down => ctrl.handle_down(),
-            Key::Right => ctrl.handle_right(),
-            Key::Left => ctrl.handle_left(),
-            Key::ASCII(s) => ctrl.handle_ascii(s),
-            Key::None => Response::Ok,
+        let response = match self.mode {
+            Mode::Normal => self.normal.handle_key(key),
+            Mode::Insert => self.insert.handle_key(key),
+            //Mode::Visual => self.visual.handle_key(key),
+            //Mode::Select => self.select.handle_key(key)
+            Mode::CommandLine => self.command_line.handle_key(key),
+            _ => Response::Ok
         };
 
         match response {
@@ -83,11 +87,8 @@ impl Window {
         self.render_mode();
 
         match self.mode {
-            Mode::Normal => NormalCtrl::init_screen(self.width, self.height),
-            Mode::Insert => InsertCtrl::init_screen(self.width, self.height),
-            Mode::Visual => VisualCtrl::init_screen(self.width, self.height),
             Mode::CommandLine => CommandLineCtrl::init_screen(self.width, self.height),
-            Mode::Select => SelectCtrl::init_screen(self.width, self.height)
-        };
+            _ => ()
+        }
     }
 }
