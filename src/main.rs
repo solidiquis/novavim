@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     termios.c_lflag ^= termios::ECHO | termios::ICANON;
     termios.c_cc[VMIN] = 1;
 
-    tcsetattr(char_device, TCSANOW, &termios).unwrap();
+    tcsetattr(char_device, TCSANOW, &termios)?;
 
     let win = Arc::new(Mutex::new(Window::init()));
     let _el = exec_loop(&win);
