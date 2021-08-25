@@ -2,12 +2,21 @@ use crate::vt100::error;
 use regex::Regex;
 use std::{
     error::Error,
-    io::{self, Read, Write},
+    io::{self, stdin, Read, Write},
+    os::unix::io::AsRawFd,
     str
 };
+use termios::{self, Termios};
 
-// Will not work properly unless noncanonical mode and echo is disabled.
 pub fn query_cursor_position() -> Result<(usize, usize), Box<dyn Error>> {
+    // Safety check.. but perhaps a bit too paranoid?
+    let char_device = stdin().as_raw_fd();
+    let termios = Termios::from_fd(char_device)?;
+    
+    if termios.c_lflag & termios::ICANON == termios::ICANON {
+        return Err(Box::new(error::Error::NonCanonicalModeRequired))
+    }
+
     // query the cursor position.
     let mut stdout = io::stdout();
     stdout.write_all(b"\x1b[6n");
@@ -23,7 +32,7 @@ pub fn query_cursor_position() -> Result<(usize, usize), Box<dyn Error>> {
     let mut buffer = [0; 10];
 
     // Read device report into buffer.
-    io::stdin().read(&mut buffer)?;
+    stdin().read(&mut buffer)?;
 
     let result = str::from_utf8(&buffer)?;
 

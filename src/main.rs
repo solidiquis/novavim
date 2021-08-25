@@ -22,7 +22,7 @@ use signal_hook::{
         exfiltrator::origin::WithOrigin
     }
 };
-use termios::{tcsetattr, Termios};
+use termios::{self, tcsetattr, Termios};
 use window::Window;
 
 const TCSANOW: c_int = 0;
