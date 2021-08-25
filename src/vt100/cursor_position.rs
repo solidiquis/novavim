@@ -13,8 +13,8 @@ pub fn query_cursor_position() -> Result<(usize, usize), Box<dyn Error>> {
     let char_device = stdin().as_raw_fd();
     let termios = Termios::from_fd(char_device)?;
     
-    if termios.c_lflag & termios::ICANON == termios::ICANON {
-        return Err(Box::new(error::Error::NonCanonicalModeRequired))
+    if termios.c_lflag & (termios::ICANON | termios::ECHO) == (termios::ICANON | termios::ECHO) {
+        return Err(Box::new(error::Error::RawModeRequired))
     }
 
     // query the cursor position.
