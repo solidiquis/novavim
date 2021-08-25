@@ -1,16 +1,17 @@
 mod commands;
 mod errors;
 mod event_loop;
-use event_loop::EventLoop;
 mod key;
 mod mode;
 mod vt100;
 mod window;
-use window::Window;
 
+use event_loop::EventLoop;
+use libc::c_int;
 use std::{
-    io::Error,
-    process::Command,
+    error::Error,
+    io::stdin,
+    os::unix::io::AsRawFd,
     sync::{Arc, Mutex},
     thread::{self, JoinHandle}
 };
@@ -21,31 +22,31 @@ use signal_hook::{
         exfiltrator::origin::WithOrigin
     }
 };
+use termios::{tcsetattr, Termios};
+use window::Window;
 
-fn main() -> Result<(), Error> {
-    //let os_signals = vec![SIGWINCH, SIGINT];
-    let os_signals = vec![SIGWINCH];
-    let mut signal_info = SignalsInfo::<WithOrigin>::new(&os_signals)?;
+const TCSANOW: c_int = 0;
+const VMIN: usize = 6;
 
-    // Noncanonical mode, turn off echo.
-    Command::new("stty")
-        .arg("-f")
-        .arg("/dev/tty")
-        .arg("cbreak")
-        .arg("min")
-        .arg("1")
-        .arg("-echo")
-        .output()
-        .expect("Failed to unbuffer stdin.");
+fn main() -> Result<(), Box<dyn Error>> {
+    let kernal_sigs = vec![SIGWINCH, SIGINT];
+    let mut sig_info = SignalsInfo::<WithOrigin>::new(&kernal_sigs)?;
+
+    let char_device = stdin().as_raw_fd();
+    let mut termios = Termios::from_fd(char_device)?;
+
+    termios.c_lflag ^= termios::ECHO | termios::ICANON;
+    termios.c_cc[VMIN] = 1;
+
+    tcsetattr(char_device, TCSANOW, &termios).unwrap();
 
     let win = Arc::new(Mutex::new(Window::init()));
     let _el = exec_loop(&win);
 
-    for info in &mut signal_info {
+    for info in &mut sig_info {
         match info.signal {
             SIGWINCH => Window::set_dimensions_with_lock(&win, 1, 1),
-            //SIGINT => handle,
-            _ => ()
+            SIGINT | _ => (),
         }
     }
 

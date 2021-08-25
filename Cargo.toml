@@ -7,5 +7,6 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2"
-signal-hook = { version = "0.3.9", features = ["extended-siginfo"] }
 regex = "1"
+signal-hook = { version = "0.3.9", features = ["extended-siginfo"] }
+termios = "0.3.3"
